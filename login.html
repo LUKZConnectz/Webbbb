@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Noto+Sans+Thai:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
 </head>
 <body data-page="login">
   <main class="login-shell">
@@ -23,11 +24,24 @@
       </div>
       <form class="login-form" data-login-form action="#" method="post">
         <p class="login-error" data-login-error hidden></p>
-        <label for="username">ชื่อผู้ใช้</label>
-        <input id="username" name="username" type="text" placeholder="เช่น cvoppy" autocomplete="username" />
-        <label for="password">รหัสผ่าน</label>
-        <input id="password" name="password" type="password" placeholder="กรอกรหัสผ่าน" autocomplete="current-password" />
-        <button class="pill login-submit" type="submit">เข้าสู่ระบบ</button>
+        <div class="form-field">
+          <label for="username">ชื่อผู้ใช้</label>
+          <div class="input-wrap">
+            <i data-lucide="user-round" aria-hidden="true"></i>
+            <input id="username" name="username" type="text" placeholder="เช่น cvoppy" autocomplete="username" />
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="password">รหัสผ่าน</label>
+          <div class="input-wrap">
+            <i data-lucide="lock-keyhole" aria-hidden="true"></i>
+            <input id="password" name="password" type="password" placeholder="กรอกรหัสผ่าน" autocomplete="current-password" />
+          </div>
+        </div>
+        <button class="pill login-submit" type="submit">
+          <i data-lucide="log-in" aria-hidden="true"></i>
+          <span>เข้าสู่ระบบ</span>
+        </button>
       </form>
     </section>
   </main>
