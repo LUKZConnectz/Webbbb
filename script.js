@@ -90,6 +90,7 @@ function initStore() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  if (window.lucide) window.lucide.createIcons();
   document.querySelectorAll('[data-logout]').forEach((button) => button.addEventListener('click', logout));
   if (document.body.dataset.page === 'login') initLogin();
   if (document.body.dataset.protected === 'true') initStore();
