@@ -2,7 +2,10 @@ const AUTH_KEY = 'freal_boxser_user';
 const ALERT_TIMEOUT = 4200;
 const CART_KEY = 'freal_boxser_cart';
 const ORDERS_KEY = 'freal_boxser_orders';
-const PRODUCT = { name: 'Night Vision Goggles', description: 'อุปกรณ์มองกลางคืน เหมาะสำหรับภารกิจลับหรือดูแลเวลากลางคืน', price: 3500 };
+const PRODUCTS_KEY = 'freal_boxser_products';
+const DONATE_KEY = 'freal_boxser_donations';
+const THEME_KEY = 'freal_boxser_theme';
+const PRODUCT = { id: 'night-vision', name: 'Night Vision Goggles', description: 'อุปกรณ์มองกลางคืน เหมาะสำหรับภารกิจลับหรือดูแลเวลากลางคืน', price: 3500, stock: 4, featured: true };
 
 function getUser() {
   try { return JSON.parse(localStorage.getItem(AUTH_KEY)); } catch { return null; }
@@ -41,6 +44,15 @@ function readList(key) {
 function writeList(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
 }
+
+function getProducts() {
+  const products = readList(PRODUCTS_KEY);
+  return products.length ? products : Array.from({ length: 10 }, (_, index) => ({ ...PRODUCT, id: `${PRODUCT.id}-${index + 1}`, featured: index === 0 }));
+}
+
+function saveProducts(products) { writeList(PRODUCTS_KEY, products); }
+
+function isAdmin(user = getUser()) { return user?.role === 'admin' || String(user?.username || '').toLowerCase() === 'admin'; }
 
 function formatMoney(value) {
   return `฿ ${Number(value || 0).toFixed(2)}`;
@@ -116,8 +128,28 @@ function requireAuth() {
     window.location.href = 'login.html';
     return null;
   }
-  document.querySelectorAll('[data-username]').forEach((el) => { el.textContent = user.username; });
+  document.querySelectorAll('[data-username]').forEach((el) => { el.textContent = user.displayName || user.username; });
+  document.querySelectorAll('.admin-only').forEach((el) => { el.hidden = !isAdmin(user); });
   return user;
+}
+
+
+function applyTheme(theme = localStorage.getItem(THEME_KEY) || 'light') {
+  document.body.classList.toggle('theme-dark', theme === 'dark');
+  document.querySelectorAll('[data-theme-toggle]').forEach((button) => button.setAttribute('aria-pressed', theme === 'dark'));
+}
+
+function initChrome() {
+  applyTheme();
+  document.querySelectorAll('[data-theme-toggle]').forEach((button) => button.addEventListener('click', () => {
+    const theme = document.body.classList.contains('theme-dark') ? 'light' : 'dark';
+    localStorage.setItem(THEME_KEY, theme);
+    applyTheme(theme);
+  }));
+  const page = document.body.dataset.page;
+  document.querySelectorAll(`[data-nav="${page}"]`).forEach((link) => link.classList.add('is-active'));
+  const count = readList(CART_KEY).reduce((sum, item) => sum + Number(item.quantity || 1), 0);
+  document.querySelectorAll('[data-cart-count]').forEach((el) => { el.textContent = count; el.hidden = count === 0; });
 }
 
 function initLogin() {
@@ -144,7 +176,7 @@ function initLogin() {
       return;
     }
 
-    setUser({ username });
+    setUser({ username, role: username.toLowerCase() === 'admin' ? 'admin' : 'user', displayName: username, balance: 0 });
     showAlert({ title: 'เข้าสู่ระบบสำเร็จ', message: `ยินดีต้อนรับ ${username}`, type: 'success' });
     window.setTimeout(() => { window.location.href = 'index.html'; }, 450);
   });
@@ -152,6 +184,7 @@ function initLogin() {
 
 function initStore() {
   if (!requireAuth()) return;
+  renderStoreProducts();
   const modal = document.querySelector('[data-product-modal]');
   if (!modal) return;
 
@@ -209,6 +242,12 @@ function initStore() {
 }
 
 
+function renderStoreProducts() {
+  const grid = document.querySelector('.product-grid');
+  if (!grid) return;
+  grid.innerHTML = getProducts().map((product, index) => `<article class="product-card ${product.featured || index === 0 ? 'featured' : ''}"><span class="badge ${product.featured || index === 0 ? 'red' : 'dark'}">${product.featured || index === 0 ? 'สินค้าแนะนำ' : 'สินค้ายอดนิยม'}</span><div class="product-image"></div><div class="product-body"><h2>${escapeHTML(product.name)}</h2><p>${escapeHTML(product.description)}</p><strong class="price">${formatMoney(product.price)}</strong></div></article>`).join('');
+}
+
 function initHeroSlider() {
   const slider = document.querySelector('[data-hero-slider]');
   if (!slider) return;
@@ -233,12 +272,16 @@ function initHeroSlider() {
 
 function initAdmin() {
   if (document.body.dataset.page !== 'admin') return;
-  if (!requireAuth()) return;
+  const user = requireAuth();
+  if (!user) return;
+  if (!isAdmin(user)) { showAlert({ title: 'ไม่มีสิทธิ์เข้าระบบหลังบ้าน', message: 'หน้านี้สำหรับผู้ดูแลเท่านั้น', type: 'error' }); window.setTimeout(() => { window.location.href = 'index.html'; }, 700); return; }
   const list = document.querySelector('[data-admin-order-list]');
   const ordersMetric = document.querySelector('[data-admin-orders]');
   const salesMetric = document.querySelector('[data-admin-sales]');
   const refresh = document.querySelector('[data-admin-refresh]');
   const productForm = document.querySelector('[data-admin-product-form]');
+  const productsMetric = document.querySelector('[data-admin-products]');
+  const productsList = document.querySelector('[data-admin-products-list]');
   const statusText = { pending: 'รอชำระเงิน', cancelled: 'ยกเลิกแล้ว', paid: 'ชำระเงินแล้ว' };
 
   const render = () => {
@@ -246,6 +289,9 @@ function initAdmin() {
     const sales = orders.filter((order) => order.status === 'paid').reduce((sum, order) => sum + order.items.reduce((lineSum, item) => lineSum + item.price * item.quantity, 0), 0);
     ordersMetric.textContent = orders.length;
     salesMetric.textContent = formatMoney(sales);
+    const products = getProducts();
+    if (productsMetric) productsMetric.textContent = products.length;
+    if (productsList) productsList.innerHTML = products.map((product) => `<article class="admin-order" data-product-id="${escapeHTML(product.id)}"><div><h3>${escapeHTML(product.name)}</h3><p>${formatMoney(product.price)} · คงเหลือ ${Number(product.stock || 0)} ชิ้น</p></div><button class="pill" type="button" data-delete-product>ลบ</button></article>`).join('');
     list.innerHTML = orders.length ? orders.map((order) => `
       <article class="admin-order">
         <div><h3>${escapeHTML(order.id)}</h3><p>${formatThaiDate(order.createdAt)} · ${escapeHTML(statusText[order.status] || order.status)}</p></div>
@@ -257,7 +303,20 @@ function initAdmin() {
   refresh?.addEventListener('click', () => { render(); showAlert({ title: 'รีเฟรชข้อมูลแล้ว', message: 'อัปเดตรายการคำสั่งซื้อในระบบหลังบ้านสำเร็จ', type: 'success' }); });
   productForm?.addEventListener('submit', (event) => {
     event.preventDefault();
-    showAlert({ title: 'บันทึกสินค้าสำเร็จ', message: 'ระบบจำลองได้บันทึกข้อมูลสินค้าเรียบร้อย', type: 'success' });
+    const formData = new FormData(productForm);
+    const products = getProducts();
+    products.unshift({ id: makeId(), name: String(formData.get('product-name') || 'สินค้าใหม่'), description: String(formData.get('product-description') || 'สินค้าในร้าน Freal Boxser'), price: Number(formData.get('product-price') || 0), stock: Number(formData.get('product-stock') || 1), featured: false });
+    saveProducts(products);
+    productForm.reset();
+    render();
+    showAlert({ title: 'เพิ่มสินค้าสำเร็จ', message: 'สินค้าใหม่ถูกเพิ่มเข้าระบบหลังบ้านแล้ว', type: 'success' });
+  });
+  productsList?.addEventListener('click', (event) => {
+    const card = event.target.closest('[data-product-id]');
+    if (!card || !event.target.closest('[data-delete-product]')) return;
+    saveProducts(getProducts().filter((product) => product.id !== card.dataset.productId));
+    render();
+    showAlert({ title: 'ลบสินค้าแล้ว', message: 'อัปเดตรายการสินค้าเรียบร้อย', type: 'success' });
   });
   render();
 }
@@ -349,7 +408,29 @@ function initTopup() {
   });
 }
 
+
+function initProfile() {
+  if (document.body.dataset.page !== 'profile') return;
+  const user = requireAuth(); if (!user) return;
+  document.querySelector('[data-profile-name]').textContent = user.displayName || user.username;
+  document.querySelector('[data-wallet-balance]').textContent = formatMoney(user.balance || 0);
+  document.querySelector('[data-user-role]').textContent = isAdmin(user) ? 'ADMIN' : 'USER';
+  document.querySelector('[data-profile-orders]').textContent = readList(ORDERS_KEY).length;
+  const form = document.querySelector('[data-profile-form]');
+  form?.addEventListener('submit', (event) => { event.preventDefault(); user.displayName = new FormData(form).get('displayName') || user.displayName; setUser(user); requireAuth(); showAlert({ title: 'บันทึกโปรไฟล์แล้ว', type: 'success' }); });
+}
+
+function initDonate() {
+  if (document.body.dataset.page !== 'donate') return;
+  if (!requireAuth()) return;
+  const goal = 10000, form = document.querySelector('[data-donate-form]'), list = document.querySelector('[data-donate-list]');
+  const render = () => { const items = readList(DONATE_KEY); const total = items.reduce((s,i)=>s+Number(i.amount||0),0); document.querySelector('[data-donate-total]').textContent = `${formatMoney(total)} / ${formatMoney(goal)}`; document.querySelector('[data-donate-bar]').style.width = `${Math.min(total / goal * 100, 100)}%`; list.innerHTML = items.length ? items.map(i => `<article class="donate-row"><strong>${escapeHTML(i.donor)}</strong><span>${formatMoney(i.amount)}</span></article>`).join('') : '<p class="empty-state">ยังไม่มีผู้โดเนท เป็นคนแรกได้เลย!</p>'; };
+  form?.addEventListener('submit', (event) => { event.preventDefault(); const fd = new FormData(form); const amount = Number(fd.get('amount') || 0); if (amount <= 0) return showAlert({ title: 'กรุณาใส่ยอดโดเนท', type: 'error' }); const items = readList(DONATE_KEY); items.unshift({ donor: fd.get('donor') || getUser().username, amount, createdAt: new Date().toISOString() }); writeList(DONATE_KEY, items); form.reset(); render(); showAlert({ title: 'ขอบคุณสำหรับการโดเนท', message: formatMoney(amount), type: 'success' }); });
+  render();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  initChrome();
   refreshIcons();
   document.querySelectorAll('[data-logout]').forEach((button) => button.addEventListener('click', logout));
   if (document.body.dataset.page === 'login') initLogin();
@@ -360,5 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initOrders();
     initTopup();
     initAdmin();
+    initProfile();
+    initDonate();
   }
 });

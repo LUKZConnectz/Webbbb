@@ -10,27 +10,19 @@
   <link rel="stylesheet" href="styles.css" />
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
 </head>
-<body data-protected="true">
+<body data-protected="true" data-page="home">
   <header class="site-header">
     <div class="header-inner">
-      <a class="logo" href="#" aria-label="Freal Boxser home">
-        <span class="logo-main">FREAL</span>
-        <span class="logo-sub">BOXSER</span>
-      </a>
-
-      <nav class="toolbar" aria-label="user actions">
-        <button class="pill user-pill" type="button">
-          <span class="avatar"><i data-lucide="badge-user" aria-hidden="true"></i></span>
-          <span data-username>cvoppy</span>
-        </button>
-        <button class="pill" type="button" data-logout>ออกจากระบบ</button>
-        <div class="toolbar-icons">
-          <a class="icon-btn icon-link" href="cart.html" aria-label="ตะกร้าสินค้า"><i data-lucide="shopping-basket" aria-hidden="true"></i></a>
-          <a class="icon-btn icon-link" href="orders.html" aria-label="คำสั่งซื้อ"><i data-lucide="message-square-text" aria-hidden="true"></i></a>
-          <a class="icon-btn icon-link" href="topup.html" aria-label="เติมเงิน"><i data-lucide="piggy-bank" aria-hidden="true"></i></a>
-          <a class="icon-btn icon-link" href="admin.html" aria-label="ระบบหลังบ้าน"><i data-lucide="settings" aria-hidden="true"></i></a>
-          <button class="icon-btn" type="button" aria-label="ตั้งค่าธีม"><i data-lucide="sun-medium" aria-hidden="true"></i></button>
-        </div>
+      <a class="logo" href="index.html" aria-label="Freal Boxser home"><span class="logo-main">FREAL</span><span class="logo-sub">BOXSER</span></a>
+      <nav class="toolbar" aria-label="main navigation">
+        <a class="nav-link" href="index.html" data-nav="home"><i data-lucide="store"></i><span>ร้านค้า</span></a>
+        <a class="nav-link" href="cart.html" data-nav="cart"><i data-lucide="shopping-basket"></i><span>ตะกร้า</span><em data-cart-count>0</em></a>
+        <a class="nav-link" href="orders.html" data-nav="orders"><i data-lucide="receipt-text"></i><span>ออเดอร์</span></a>
+        <a class="nav-link donate-link" href="donate.html" data-nav="donate"><i data-lucide="heart-handshake"></i><span>โดเนท</span></a>
+        <a class="nav-link admin-only" href="admin.html" data-nav="admin"><i data-lucide="settings"></i><span>แอดมิน</span></a>
+        <a class="pill user-pill" href="profile.html"><span class="avatar"><i data-lucide="badge-user"></i></span><span data-username>user</span></a>
+        <button class="icon-btn" type="button" aria-label="สลับโหมดสว่าง/มืด" data-theme-toggle><i data-lucide="sun-moon"></i></button>
+        <button class="pill logout-pill" type="button" data-logout>ออกจากระบบ</button>
       </nav>
     </div>
   </header>
