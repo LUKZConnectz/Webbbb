@@ -209,6 +209,59 @@ function initStore() {
 }
 
 
+function initHeroSlider() {
+  const slider = document.querySelector('[data-hero-slider]');
+  if (!slider) return;
+  const slides = Array.from(slider.querySelectorAll('[data-slide]'));
+  const prev = slider.querySelector('[data-slide-prev]');
+  const next = slider.querySelector('[data-slide-next]');
+  if (slides.length < 2) return;
+  let active = 0;
+  let timer;
+  const show = (index) => {
+    active = (index + slides.length) % slides.length;
+    slides.forEach((slide, slideIndex) => slide.classList.toggle('is-active', slideIndex === active));
+  };
+  const start = () => { timer = window.setInterval(() => show(active + 1), 3600); };
+  const restart = () => { window.clearInterval(timer); start(); };
+  prev?.addEventListener('click', () => { show(active - 1); restart(); });
+  next?.addEventListener('click', () => { show(active + 1); restart(); });
+  slider.addEventListener('mouseenter', () => window.clearInterval(timer));
+  slider.addEventListener('mouseleave', start);
+  start();
+}
+
+function initAdmin() {
+  if (document.body.dataset.page !== 'admin') return;
+  if (!requireAuth()) return;
+  const list = document.querySelector('[data-admin-order-list]');
+  const ordersMetric = document.querySelector('[data-admin-orders]');
+  const salesMetric = document.querySelector('[data-admin-sales]');
+  const refresh = document.querySelector('[data-admin-refresh]');
+  const productForm = document.querySelector('[data-admin-product-form]');
+  const statusText = { pending: 'รอชำระเงิน', cancelled: 'ยกเลิกแล้ว', paid: 'ชำระเงินแล้ว' };
+
+  const render = () => {
+    const orders = readList(ORDERS_KEY);
+    const sales = orders.filter((order) => order.status === 'paid').reduce((sum, order) => sum + order.items.reduce((lineSum, item) => lineSum + item.price * item.quantity, 0), 0);
+    ordersMetric.textContent = orders.length;
+    salesMetric.textContent = formatMoney(sales);
+    list.innerHTML = orders.length ? orders.map((order) => `
+      <article class="admin-order">
+        <div><h3>${escapeHTML(order.id)}</h3><p>${formatThaiDate(order.createdAt)} · ${escapeHTML(statusText[order.status] || order.status)}</p></div>
+        <strong>${formatMoney(order.items.reduce((sum, item) => sum + item.price * item.quantity, 0))}</strong>
+      </article>
+    `).join('') : '<p class="empty-state">ยังไม่มีคำสั่งซื้อให้จัดการ</p>';
+  };
+
+  refresh?.addEventListener('click', () => { render(); showAlert({ title: 'รีเฟรชข้อมูลแล้ว', message: 'อัปเดตรายการคำสั่งซื้อในระบบหลังบ้านสำเร็จ', type: 'success' }); });
+  productForm?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    showAlert({ title: 'บันทึกสินค้าสำเร็จ', message: 'ระบบจำลองได้บันทึกข้อมูลสินค้าเรียบร้อย', type: 'success' });
+  });
+  render();
+}
+
 function initCart() {
   if (document.body.dataset.page !== 'cart') return;
   if (!requireAuth()) return;
@@ -269,8 +322,8 @@ function initOrders() {
     const orders = readList(ORDERS_KEY);
     const order = orders.find((item) => item.id === id);
     if (event.target.closest('[data-toggle-detail]')) card.querySelector('.order-detail').hidden = !card.querySelector('.order-detail').hidden;
-    if (event.target.closest('[data-cancel-order]') && order) { order.status = 'cancelled'; writeList(ORDERS_KEY, orders); render(); }
-    if (event.target.closest('[data-pay-order]') && order) { order.status = 'paid'; writeList(ORDERS_KEY, orders); render(); }
+    if (event.target.closest('[data-cancel-order]') && order) { order.status = 'cancelled'; writeList(ORDERS_KEY, orders); render(); showAlert({ title: 'ยกเลิกคำสั่งซื้อแล้ว', message: 'อัปเดตสถานะในระบบสำเร็จ', type: 'success' }); }
+    if (event.target.closest('[data-pay-order]') && order) { order.status = 'paid'; writeList(ORDERS_KEY, orders); render(); showAlert({ title: 'ยืนยันการชำระเงินสำเร็จ', message: 'คำสั่งซื้อถูกปรับเป็นชำระเงินแล้ว', type: 'success' }); }
   });
   render();
 }
@@ -300,10 +353,12 @@ document.addEventListener('DOMContentLoaded', () => {
   refreshIcons();
   document.querySelectorAll('[data-logout]').forEach((button) => button.addEventListener('click', logout));
   if (document.body.dataset.page === 'login') initLogin();
+  initHeroSlider();
   if (document.body.dataset.protected === 'true') {
     initStore();
     initCart();
     initOrders();
     initTopup();
+    initAdmin();
   }
 });

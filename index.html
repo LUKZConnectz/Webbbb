@@ -28,6 +28,7 @@
           <a class="icon-btn icon-link" href="cart.html" aria-label="ตะกร้าสินค้า"><i data-lucide="shopping-basket" aria-hidden="true"></i></a>
           <a class="icon-btn icon-link" href="orders.html" aria-label="คำสั่งซื้อ"><i data-lucide="message-square-text" aria-hidden="true"></i></a>
           <a class="icon-btn icon-link" href="topup.html" aria-label="เติมเงิน"><i data-lucide="piggy-bank" aria-hidden="true"></i></a>
+          <a class="icon-btn icon-link" href="admin.html" aria-label="ระบบหลังบ้าน"><i data-lucide="settings" aria-hidden="true"></i></a>
           <button class="icon-btn" type="button" aria-label="ตั้งค่าธีม"><i data-lucide="sun-medium" aria-hidden="true"></i></button>
         </div>
       </nav>
@@ -35,10 +36,26 @@
   </header>
 
   <main class="page-shell">
-    <section class="hero-wrap" aria-label="promotions">
-      <button class="slider-arrow arrow-left" type="button" aria-label="สไลด์ก่อนหน้า"><i data-lucide="chevron-left" aria-hidden="true"></i></button>
-      <div class="hero-panel"></div>
-      <button class="slider-arrow arrow-right" type="button" aria-label="สไลด์ถัดไป"><i data-lucide="chevron-right" aria-hidden="true"></i></button>
+    <section class="hero-wrap" aria-label="promotions" data-hero-slider>
+      <button class="slider-arrow arrow-left" type="button" aria-label="สไลด์ก่อนหน้า" data-slide-prev><i data-lucide="chevron-left" aria-hidden="true"></i></button>
+      <div class="hero-panel">
+        <article class="hero-slide is-active" data-slide>
+          <span>โปรโมชั่นแนะนำ</span>
+          <h1>Freal Boxser Deal</h1>
+          <p>กล่องโปรโมชันตรงกลางเลื่อนอัตโนมัติ พร้อมปุ่มควบคุมซ้าย-ขวา</p>
+        </article>
+        <article class="hero-slide" data-slide>
+          <span>เติมเงินไว</span>
+          <h1>Top up Bonus</h1>
+          <p>เติมเงินและรับการแจ้งเตือนหลังส่งยืนยันสำเร็จทันที</p>
+        </article>
+        <article class="hero-slide" data-slide>
+          <span>ระบบหลังบ้าน</span>
+          <h1>Admin Ready</h1>
+          <p>มีหน้าแอดมินแยกสำหรับตรวจสอบยอดขายและคำสั่งซื้อ</p>
+        </article>
+      </div>
+      <button class="slider-arrow arrow-right" type="button" aria-label="สไลด์ถัดไป" data-slide-next><i data-lucide="chevron-right" aria-hidden="true"></i></button>
     </section>
 
     <section class="stats-grid" aria-label="store statistics">
