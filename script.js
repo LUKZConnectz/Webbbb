@@ -1,5 +1,8 @@
 const AUTH_KEY = 'freal_boxser_user';
 const ALERT_TIMEOUT = 4200;
+const CART_KEY = 'freal_boxser_cart';
+const ORDERS_KEY = 'freal_boxser_orders';
+const PRODUCT = { name: 'Night Vision Goggles', description: 'อุปกรณ์มองกลางคืน เหมาะสำหรับภารกิจลับหรือดูแลเวลากลางคืน', price: 3500 };
 
 function getUser() {
   try { return JSON.parse(localStorage.getItem(AUTH_KEY)); } catch { return null; }
@@ -28,6 +31,52 @@ function ensureAlertRegion() {
 
 function escapeHTML(value) {
   return String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+}
+
+
+function readList(key) {
+  try { return JSON.parse(localStorage.getItem(key)) || []; } catch { return []; }
+}
+
+function writeList(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+function formatMoney(value) {
+  return `฿ ${Number(value || 0).toFixed(2)}`;
+}
+
+function makeId() {
+  return (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`);
+}
+
+function addCartItem(quantity) {
+  const cart = readList(CART_KEY);
+  const current = cart.find((item) => item.name === PRODUCT.name && item.price === PRODUCT.price);
+  if (current) current.quantity += quantity;
+  else cart.push({ ...PRODUCT, quantity });
+  writeList(CART_KEY, cart);
+}
+
+function createOrder(items) {
+  const orders = readList(ORDERS_KEY);
+  const order = {
+    id: makeId(),
+    transactionId: makeId(),
+    createdAt: new Date().toISOString(),
+    status: 'pending',
+    items: items.map((item) => ({ ...item })),
+  };
+  orders.unshift(order);
+  writeList(ORDERS_KEY, orders);
+  return order;
+}
+
+function formatThaiDate(value) {
+  const date = value ? new Date(value) : new Date();
+  const buddhistYear = date.getFullYear() + 543;
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${buddhistYear} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 }
 
 function showAlert({ title, message = '', type = 'success' }) {
@@ -143,15 +192,87 @@ function initStore() {
   });
 
   quantity.addEventListener('input', () => { quantity.value = getQuantity(); });
-  cartButton?.addEventListener('click', () => showAlert({ title: 'เพิ่มลงตะกร้าแล้ว', message: `Night Vision Goggles จำนวน ${getQuantity()} ชิ้น`, type: 'success' }));
+  cartButton?.addEventListener('click', () => {
+    addCartItem(getQuantity());
+    showAlert({ title: 'เพิ่มลงตะกร้าแล้ว', message: `Night Vision Goggles จำนวน ${getQuantity()} ชิ้น`, type: 'success' });
+  });
   orderButton?.addEventListener('click', () => {
-    showAlert({ title: 'สั่งซื้อสำเร็จ', message: 'ระบบได้รับคำสั่งซื้อของคุณแล้ว', type: 'success' });
+    createOrder([{ ...PRODUCT, quantity: getQuantity() }]);
+    showAlert({ title: 'สั่งซื้อสำเร็จ', message: 'กำลังพาไปตรวจสอบคำสั่งซื้อ', type: 'success' });
     closeModal();
+    window.setTimeout(() => { window.location.href = 'orders.html'; }, 500);
   });
 
   closeButtons.forEach((button) => button.addEventListener('click', closeModal));
   modal.addEventListener('click', (event) => { if (event.target === modal) closeModal(); });
   document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && modal.classList.contains('is-open')) closeModal(); });
+}
+
+
+function initCart() {
+  if (document.body.dataset.page !== 'cart') return;
+  if (!requireAuth()) return;
+  const list = document.querySelector('[data-cart-list]');
+  const total = document.querySelector('[data-cart-total]');
+  const checkout = document.querySelector('[data-checkout]');
+  if (!list) return;
+
+  const render = () => {
+    const cart = readList(CART_KEY);
+    list.innerHTML = cart.length ? cart.map((item) => `
+      <article class="cart-item">
+        <div>
+          <h2>${escapeHTML(item.name)}</h2>
+          <p>${escapeHTML(item.description)}</p>
+          <small>จำนวน ${Number(item.quantity || 1)}</small>
+        </div>
+        <strong class="item-price">${formatMoney(item.price * item.quantity)}</strong>
+      </article>
+    `).join('') : '<p class="empty-state">ยังไม่มีสินค้าในตะกร้า กลับไปเลือกสินค้าได้ที่หน้าร้าน</p>';
+    total.textContent = formatMoney(cart.reduce((sum, item) => sum + item.price * item.quantity, 0));
+    checkout.disabled = !cart.length;
+  };
+
+  checkout?.addEventListener('click', () => {
+    const cart = readList(CART_KEY);
+    if (!cart.length) return;
+    createOrder(cart);
+    writeList(CART_KEY, []);
+    showAlert({ title: 'สั่งซื้อสำเร็จ', message: 'ไปยังหน้ารายการคำสั่งซื้อเพื่อตรวจสอบสถานะ', type: 'success' });
+    window.setTimeout(() => { window.location.href = 'orders.html'; }, 500);
+  });
+  render();
+}
+
+function initOrders() {
+  if (document.body.dataset.page !== 'orders') return;
+  if (!requireAuth()) return;
+  const list = document.querySelector('[data-orders-list]');
+  if (!list) return;
+  const statusText = { pending: 'รอชำระเงิน', cancelled: 'ยกเลิกแล้ว', paid: 'ชำระเงินแล้ว' };
+  const render = () => {
+    const orders = readList(ORDERS_KEY);
+    list.innerHTML = orders.length ? orders.map((order) => `
+      <article class="order-card" data-order-id="${escapeHTML(order.id)}">
+        <div class="order-head"><div><h2>รหัสคำสั่งซื้อ: ${escapeHTML(order.id)}</h2><p class="order-meta">วันที่: ${formatThaiDate(order.createdAt)}</p><p class="order-meta">การชำระเงิน: <span class="status ${order.status}">${statusText[order.status] || order.status}</span></p></div><p class="order-code">รหัสธุรกรรม:<br>${escapeHTML(order.transactionId)}</p></div>
+        <div class="order-lines">${order.items.map((item) => `<div class="order-line"><div><h3>${escapeHTML(item.name)}</h3><small>จำนวน: ${Number(item.quantity || 1)}</small></div><strong class="order-price">${formatMoney(item.price * item.quantity)}<small>(${Number(item.price).toFixed(2)} x ${Number(item.quantity || 1)})</small></strong></div>`).join('')}</div>
+        <div class="order-detail" hidden>รายละเอียดคำสั่งซื้อ: สินค้าทั้งหมด ${order.items.reduce((sum, item) => sum + Number(item.quantity || 1), 0)} ชิ้น ยอดรวม ${formatMoney(order.items.reduce((sum, item) => sum + item.price * item.quantity, 0))} สถานะ ${statusText[order.status] || order.status}</div>
+        <div class="order-actions"><button class="pill" type="button" data-cancel-order>ยกเลิกคำสั่งซื้อ</button><button class="pill pay-btn" type="button" data-pay-order>ชำระเงิน</button><button class="pill" type="button" data-toggle-detail>ดูรายละเอียด</button></div>
+      </article>
+    `).join('') : '<p class="empty-state">ยังไม่มีคำสั่งซื้อ</p>';
+    refreshIcons(list);
+  };
+  list.addEventListener('click', (event) => {
+    const card = event.target.closest('[data-order-id]');
+    if (!card) return;
+    const id = card.dataset.orderId;
+    const orders = readList(ORDERS_KEY);
+    const order = orders.find((item) => item.id === id);
+    if (event.target.closest('[data-toggle-detail]')) card.querySelector('.order-detail').hidden = !card.querySelector('.order-detail').hidden;
+    if (event.target.closest('[data-cancel-order]') && order) { order.status = 'cancelled'; writeList(ORDERS_KEY, orders); render(); }
+    if (event.target.closest('[data-pay-order]') && order) { order.status = 'paid'; writeList(ORDERS_KEY, orders); render(); }
+  });
+  render();
 }
 
 function initTopup() {
@@ -181,6 +302,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (document.body.dataset.page === 'login') initLogin();
   if (document.body.dataset.protected === 'true') {
     initStore();
+    initCart();
+    initOrders();
     initTopup();
   }
 });
