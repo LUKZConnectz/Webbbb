@@ -24,37 +24,41 @@
           <span data-username>cvoppy</span>
         </button>
         <button class="pill" type="button" data-logout>ออกจากระบบ</button>
-        <a class="icon-btn icon-link" href="topup.html" aria-label="Cart"><i data-lucide="shopping-cart" aria-hidden="true"></i></a>
-        <button class="icon-btn" type="button" aria-label="Theme settings"><i data-lucide="sun" aria-hidden="true"></i></button>
+        <a class="icon-btn icon-link" href="topup.html" aria-label="ตะกร้าสินค้า"><i data-lucide="shopping-cart" aria-hidden="true"></i></a>
+        <button class="icon-btn" type="button" aria-label="ตั้งค่าธีม"><i data-lucide="sun-medium" aria-hidden="true"></i></button>
       </nav>
     </div>
   </header>
 
   <main class="page-shell">
     <section class="hero-wrap" aria-label="promotions">
-      <button class="slider-arrow arrow-left" type="button" aria-label="Previous slide">‹</button>
+      <button class="slider-arrow arrow-left" type="button" aria-label="สไลด์ก่อนหน้า"><i data-lucide="chevron-left" aria-hidden="true"></i></button>
       <div class="hero-panel"></div>
-      <button class="slider-arrow arrow-right" type="button" aria-label="Next slide">›</button>
+      <button class="slider-arrow arrow-right" type="button" aria-label="สไลด์ถัดไป"><i data-lucide="chevron-right" aria-hidden="true"></i></button>
     </section>
 
     <section class="stats-grid" aria-label="store statistics">
       <article class="stat-card">
         <span class="stat-label">ผู้ใช้งานทั้งหมด</span>
+        <i class="stat-icon" data-lucide="users" aria-hidden="true"></i>
         <strong>ผู้ใช้งานทั้งหมด</strong>
         <em>4K</em>
       </article>
       <article class="stat-card">
         <span class="stat-label">ผู้ใช้งานวันนี้</span>
+        <i class="stat-icon" data-lucide="user-round-check" aria-hidden="true"></i>
         <strong>ผู้ใช้งานวันนี้</strong>
         <em>1.3K</em>
       </article>
       <article class="stat-card">
         <span class="stat-label">ยอดซื้อทั้งหมด</span>
+        <i class="stat-icon" data-lucide="shopping-bag" aria-hidden="true"></i>
         <strong>ยอดซื้อทั้งหมด</strong>
         <em>10K</em>
       </article>
       <article class="stat-card">
         <span class="stat-label">ยอดขายวันนี้</span>
+        <i class="stat-icon" data-lucide="chart-no-axes-combined" aria-hidden="true"></i>
         <strong>ยอดขายวันนี้</strong>
         <em>420</em>
       </article>
@@ -86,9 +90,9 @@
 
   <div class="product-modal" data-product-modal aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-product-title">
     <div class="modal-card">
-      <button class="modal-close" type="button" aria-label="ปิดหน้าต่าง" data-close-modal>×</button>
+      <button class="modal-close" type="button" aria-label="ปิดหน้าต่าง" data-close-modal><i data-lucide="x" aria-hidden="true"></i></button>
       <div class="modal-image">
-        <span class="camera-tag">Camera</span>
+        <span class="camera-tag"><i data-lucide="camera" aria-hidden="true"></i> Camera</span>
       </div>
       <div class="modal-content">
         <h2 id="modal-product-title">Night Vision Goggles</h2>
@@ -100,8 +104,8 @@
         <div class="modal-actions">
           <label class="sr-only" for="product-quantity">จำนวนสินค้า</label>
           <input id="product-quantity" data-quantity type="number" min="1" max="4" value="1" />
-          <button class="pill cart-action" type="button"><i data-lucide="shopping-basket" aria-hidden="true"></i><span>หยิบใส่ตะกร้า</span></button>
-          <button class="pill order-action" type="button"><i data-lucide="package-check" aria-hidden="true"></i><span>สั่งซื้อ</span></button>
+          <button class="pill cart-action" type="button" data-add-cart><i data-lucide="shopping-basket" aria-hidden="true"></i><span>หยิบใส่ตะกร้า</span></button>
+          <button class="pill order-action" type="button" data-order-now><i data-lucide="package-check" aria-hidden="true"></i><span>สั่งซื้อ</span></button>
         </div>
       </div>
     </div>
