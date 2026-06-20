@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Noto+Sans+Thai:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
+<body data-protected="true">
   <header class="site-header">
     <div class="header-inner">
       <a class="logo" href="#" aria-label="Freal Boxser home">
@@ -20,9 +20,9 @@
       <nav class="toolbar" aria-label="user actions">
         <button class="pill user-pill" type="button">
           <span class="avatar">🥊</span>
-          <span>cvoppy</span>
+          <span data-username>cvoppy</span>
         </button>
-        <button class="pill" type="button">ออกจากระบบ</button>
+        <button class="pill" type="button" data-logout>ออกจากระบบ</button>
         <a class="icon-btn icon-link" href="topup.html" aria-label="Cart">🛒</a>
         <button class="icon-btn" type="button" aria-label="Theme settings">☼</button>
       </nav>
@@ -81,6 +81,30 @@
       <article class="product-card"><span class="badge dark">สินค้ายอดนิยม</span><div class="product-image"></div><div class="product-body"><h2>Night Vision Goggles</h2><p>อุปกรณ์มองกลางคืน เหมาะสำหรับภารกิจลับ...</p><strong class="price">฿ 3500.00</strong></div></article>
       <article class="product-card"><span class="badge dark">สินค้ายอดนิยม</span><div class="product-image"></div><div class="product-body"><h2>Night Vision Goggles</h2><p>อุปกรณ์มองกลางคืน เหมาะสำหรับภารกิจลับ...</p><strong class="price">฿ 3500.00</strong></div></article>
     </section>
-  </main>
+    </main>
+
+  <div class="product-modal" data-product-modal aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-product-title">
+    <div class="modal-card">
+      <button class="modal-close" type="button" aria-label="ปิดหน้าต่าง" data-close-modal>×</button>
+      <div class="modal-image">
+        <span class="camera-tag">Camera</span>
+      </div>
+      <div class="modal-content">
+        <h2 id="modal-product-title">Night Vision Goggles</h2>
+        <p>อุปกรณ์มองกลางคืน เหมาะสำหรับภารกิจลับหรือดูแลเวลากลางคืน</p>
+        <div class="modal-meta">
+          <strong class="modal-price">฿ 3500.00</strong>
+          <span>จำนวนคงเหลือ <b data-remaining>4</b> ชิ้น</span>
+        </div>
+        <div class="modal-actions">
+          <label class="sr-only" for="product-quantity">จำนวนสินค้า</label>
+          <input id="product-quantity" data-quantity type="number" min="1" max="4" value="1" />
+          <button class="pill cart-action" type="button">🧺 หยิบใส่ตะกร้า</button>
+          <button class="pill order-action" type="button">▣ สั่งซื้อ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
 </body>
 </html>

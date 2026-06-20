@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Noto+Sans+Thai:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
+<body data-protected="true">
   <header class="site-header">
     <div class="header-inner">
       <a class="logo" href="index.html" aria-label="Freal Boxser home">
@@ -20,9 +20,9 @@
       <nav class="toolbar" aria-label="user actions">
         <button class="pill user-pill" type="button">
           <span class="avatar">🥊</span>
-          <span>cvoppy</span>
+          <span data-username>cvoppy</span>
         </button>
-        <button class="pill" type="button">ออกจากระบบ</button>
+        <button class="pill" type="button" data-logout>ออกจากระบบ</button>
         <a class="icon-btn icon-link" href="topup.html" aria-label="Cart">🛒</a>
         <button class="icon-btn" type="button" aria-label="Theme settings">☼</button>
       </nav>
@@ -42,5 +42,6 @@
       </form>
     </section>
   </main>
+  <script src="script.js"></script>
 </body>
 </html>
