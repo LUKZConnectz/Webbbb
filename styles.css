@@ -1027,3 +1027,20 @@ body[data-page="home"] .announcement-track span + span::before { content: "|"; c
   .review-card img { width: 44px; height: 44px; }
   body[data-page="home"] .announcement-title { font-size: 18px; }
 }
+
+/* Tailwind-powered scrollable home header */
+.tw-home-scroll { margin: 10px auto 54px; }
+.review-scroll {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #ef2334 rgba(255, 255, 255, .14);
+}
+.review-scroll::-webkit-scrollbar { height: 10px; }
+.review-scroll::-webkit-scrollbar-track { border-radius: 999px; background: rgba(255,255,255,.12); }
+.review-scroll::-webkit-scrollbar-thumb { border-radius: 999px; background: linear-gradient(90deg, #ef2334, #ff6b6b); }
+.review-card-tailwind { transition: transform .18s ease, box-shadow .18s ease; }
+.review-card-tailwind:hover,
+.review-card-tailwind:focus-within { transform: translateY(-2px); }
+@media (max-width: 760px) {
+  .tw-home-scroll { margin-bottom: 28px; border-radius: 22px; }
+}
