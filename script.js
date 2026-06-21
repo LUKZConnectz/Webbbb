@@ -9,9 +9,9 @@ const TOPUP_KEY = 'freal_boxser_topups';
 const THEME_KEY = 'freal_boxser_theme';
 // แก้ไขประกาศหน้าแรกได้ที่นี่: เพิ่ม/ลบข้อความในรายการนี้ได้ทันที
 const ANNOUNCEMENTS = [
-  'ยินดีต้อนรับสู่ Freal Boxser',
-  'เพิ่มข้อความประกาศได้ง่ายใน script.js',
-  'เติมเงินและสั่งซื้อได้ตลอด 24 ชั่วโมง',
+  '❗',
+  '💯',
+  '🔔 🐱 SHELOVECAT: ดี | ชัวร์',
 ];
 
 // แก้ไขสินค้าเริ่มต้นได้ที่นี่: เว้น image เป็นค่าว่างเพื่อให้เป็นกล่องเปล่าสำหรับใส่รูปเองภายหลัง
@@ -337,7 +337,7 @@ function renderAnnouncements() {
   if (!track) return;
   const items = ANNOUNCEMENTS.length ? ANNOUNCEMENTS : ['เพิ่มประกาศร้านค้าได้ที่ script.js'];
   const marqueeItems = [...items, ...items];
-  track.innerHTML = marqueeItems.map((message) => `<span><i data-lucide="bell" aria-hidden="true"></i> ${escapeHTML(message)}</span>`).join('');
+  track.innerHTML = marqueeItems.map((message) => `<span>${escapeHTML(message)}</span>`).join('');
   refreshIcons(track);
 }
 
