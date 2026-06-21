@@ -4,6 +4,8 @@ const CART_KEY = 'freal_boxser_cart';
 const ORDERS_KEY = 'freal_boxser_orders';
 const PRODUCTS_KEY = 'freal_boxser_products';
 const DONATE_KEY = 'freal_boxser_donations';
+const USERS_KEY = 'freal_boxser_users';
+const TOPUP_KEY = 'freal_boxser_topups';
 const THEME_KEY = 'freal_boxser_theme';
 const PRODUCT = { id: 'night-vision', name: 'Night Vision Goggles', description: 'อุปกรณ์มองกลางคืน เหมาะสำหรับภารกิจลับหรือดูแลเวลากลางคืน', price: 3500, stock: 4, featured: true };
 
@@ -43,6 +45,22 @@ function readList(key) {
 
 function writeList(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
+}
+
+function getUsers() { return readList(USERS_KEY); }
+function saveUsers(users) { writeList(USERS_KEY, users); }
+function upsertUser(user) {
+  const users = getUsers();
+  const index = users.findIndex((item) => item.username.toLowerCase() === user.username.toLowerCase());
+  if (index >= 0) users[index] = { ...users[index], ...user };
+  else users.push(user);
+  saveUsers(users);
+}
+function updateCurrentUser(patch) {
+  const user = { ...getUser(), ...patch };
+  setUser(user);
+  upsertUser(user);
+  return user;
 }
 
 function getProducts() {
@@ -155,12 +173,54 @@ function initChrome() {
 function initLogin() {
   const form = document.querySelector('[data-login-form]');
   const error = document.querySelector('[data-login-error]');
+  const modal = document.querySelector('[data-register-modal]');
+  const registerForm = document.querySelector('[data-register-form]');
+  const registerError = document.querySelector('[data-register-error]');
   if (!form) return;
 
   if (getUser()) {
     window.location.href = 'index.html';
     return;
   }
+
+  const openRegister = () => {
+    modal?.classList.add('is-open');
+    modal?.removeAttribute('aria-hidden');
+    document.body.classList.add('modal-open');
+    modal?.querySelector('input')?.focus();
+  };
+  const closeRegister = () => {
+    modal?.classList.remove('is-open');
+    modal?.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+  };
+  document.querySelector('[data-open-register]')?.addEventListener('click', openRegister);
+  document.querySelectorAll('[data-close-register]').forEach((button) => button.addEventListener('click', closeRegister));
+  modal?.addEventListener('click', (event) => { if (event.target === modal) closeRegister(); });
+
+  registerForm?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const fd = new FormData(registerForm);
+    const username = String(fd.get('username') || '').trim();
+    const password = String(fd.get('password') || '').trim();
+    const displayName = String(fd.get('displayName') || username).trim();
+    const users = getUsers();
+    if (!username || !password) {
+      registerError.textContent = 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน';
+      registerError.hidden = false;
+      return showAlert({ title: 'สมัครสมาชิกไม่สำเร็จ', message: registerError.textContent, type: 'error' });
+    }
+    if (users.some((item) => item.username.toLowerCase() === username.toLowerCase())) {
+      registerError.textContent = 'ชื่อผู้ใช้นี้ถูกใช้แล้ว';
+      registerError.hidden = false;
+      return showAlert({ title: 'สมัครสมาชิกไม่สำเร็จ', message: registerError.textContent, type: 'error' });
+    }
+    const user = { username, password, displayName, role: username.toLowerCase() === 'admin' ? 'admin' : 'user', balance: 0, createdAt: new Date().toISOString() };
+    upsertUser(user);
+    setUser(user);
+    showAlert({ title: 'สมัครสมาชิกสำเร็จ', message: `ยินดีต้อนรับ ${displayName}`, type: 'success' });
+    window.setTimeout(() => { window.location.href = 'index.html'; }, 450);
+  });
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -176,8 +236,20 @@ function initLogin() {
       return;
     }
 
-    setUser({ username, role: username.toLowerCase() === 'admin' ? 'admin' : 'user', displayName: username, balance: 0 });
-    showAlert({ title: 'เข้าสู่ระบบสำเร็จ', message: `ยินดีต้อนรับ ${username}`, type: 'success' });
+    const users = getUsers();
+    let user = users.find((item) => item.username.toLowerCase() === username.toLowerCase());
+    if (user && user.password !== password) {
+      const message = 'รหัสผ่านไม่ถูกต้อง';
+      error.textContent = message;
+      error.hidden = false;
+      return showAlert({ title: 'เข้าสู่ระบบไม่สำเร็จ', message, type: 'error' });
+    }
+    if (!user) {
+      user = { username, password, role: username.toLowerCase() === 'admin' ? 'admin' : 'user', displayName: username, balance: 0, createdAt: new Date().toISOString() };
+      upsertUser(user);
+    }
+    setUser(user);
+    showAlert({ title: 'เข้าสู่ระบบสำเร็จ', message: `ยินดีต้อนรับ ${user.displayName || username}`, type: 'success' });
     window.setTimeout(() => { window.location.href = 'index.html'; }, 450);
   });
 }
@@ -282,6 +354,8 @@ function initAdmin() {
   const productForm = document.querySelector('[data-admin-product-form]');
   const productsMetric = document.querySelector('[data-admin-products]');
   const productsList = document.querySelector('[data-admin-products-list]');
+  const topupMetric = document.querySelector('[data-admin-topups]');
+  const topupList = document.querySelector('[data-admin-topup-list]');
   const statusText = { pending: 'รอชำระเงิน', cancelled: 'ยกเลิกแล้ว', paid: 'ชำระเงินแล้ว' };
 
   const render = () => {
@@ -291,6 +365,9 @@ function initAdmin() {
     salesMetric.textContent = formatMoney(sales);
     const products = getProducts();
     if (productsMetric) productsMetric.textContent = products.length;
+    const topups = readList(TOPUP_KEY);
+    if (topupMetric) topupMetric.textContent = topups.filter((item) => item.status === 'pending').length;
+    if (topupList) topupList.innerHTML = topups.length ? topups.map((item) => `<article class="admin-order topup-review" data-topup-id="${escapeHTML(item.id)}"><div><h3>${escapeHTML(item.displayName || item.username)} · ${formatMoney(item.amount)}</h3><p>${formatThaiDate(item.createdAt)} · ${item.status === 'approved' ? 'อนุมัติแล้ว' : item.status === 'rejected' ? 'ปฏิเสธแล้ว' : 'รอตรวจสอบ'}</p><img src="${item.slip}" alt="สลิปเติมเงิน ${escapeHTML(item.id)}" /></div><div class="topup-review-actions"><button class="pill" type="button" data-approve-topup>ยืนยัน</button><button class="pill ghost-pill" type="button" data-reject-topup>ปฏิเสธ</button></div></article>`).join('') : '<p class="empty-state">ยังไม่มีสลิปเติมเงินให้ตรวจสอบ</p>';
     if (productsList) productsList.innerHTML = products.map((product) => `<article class="admin-order" data-product-id="${escapeHTML(product.id)}"><div><h3>${escapeHTML(product.name)}</h3><p>${formatMoney(product.price)} · คงเหลือ ${Number(product.stock || 0)} ชิ้น</p></div><button class="pill" type="button" data-delete-product>ลบ</button></article>`).join('');
     list.innerHTML = orders.length ? orders.map((order) => `
       <article class="admin-order">
@@ -317,6 +394,30 @@ function initAdmin() {
     saveProducts(getProducts().filter((product) => product.id !== card.dataset.productId));
     render();
     showAlert({ title: 'ลบสินค้าแล้ว', message: 'อัปเดตรายการสินค้าเรียบร้อย', type: 'success' });
+  });
+
+  topupList?.addEventListener('click', (event) => {
+    const card = event.target.closest('[data-topup-id]');
+    if (!card) return;
+    const topups = readList(TOPUP_KEY);
+    const topup = topups.find((item) => item.id === card.dataset.topupId);
+    if (!topup || topup.status !== 'pending') return;
+    if (event.target.closest('[data-approve-topup]')) {
+      topup.status = 'approved';
+      topup.approvedAt = new Date().toISOString();
+      const target = getUsers().find((item) => item.username === topup.username) || (getUser()?.username === topup.username ? getUser() : null);
+      if (target) upsertUser({ ...target, balance: Number(target.balance || 0) + Number(topup.amount || 0) });
+      if (getUser()?.username === topup.username) updateCurrentUser({ balance: Number(getUser().balance || 0) + Number(topup.amount || 0) });
+      writeList(TOPUP_KEY, topups);
+      render();
+      showAlert({ title: 'ยืนยันการเติมเงินแล้ว', message: `${topup.displayName} ได้รับ ${formatMoney(topup.amount)}`, type: 'success' });
+    }
+    if (event.target.closest('[data-reject-topup]')) {
+      topup.status = 'rejected';
+      writeList(TOPUP_KEY, topups);
+      render();
+      showAlert({ title: 'ปฏิเสธสลิปแล้ว', message: 'รายการนี้จะไม่ถูกเพิ่มยอดเงิน', type: 'warning' });
+    }
   });
   render();
 }
@@ -388,26 +489,50 @@ function initOrders() {
 }
 
 function initTopup() {
-  if (!requireAuth()) return;
+  const user = requireAuth();
+  if (!user) return;
   const form = document.querySelector('[data-topup-form]');
+  const qrButton = document.querySelector('[data-show-qr]');
+  const slipInput = document.querySelector('[name="slip-file"]');
+  const preview = document.querySelector('[data-slip-preview]');
   if (!form) return;
+
+  qrButton?.addEventListener('click', () => {
+    form.hidden = false;
+    qrButton.hidden = true;
+    refreshIcons(form);
+    showAlert({ title: 'แสดง QR Code แล้ว', message: 'สแกนโอนเงินแล้วแนบสลิปเพื่อให้แอดมินตรวจสอบ', type: 'info' });
+  });
+
+  slipInput?.addEventListener('change', () => {
+    const file = slipInput.files?.[0];
+    if (!file || !preview) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      preview.hidden = false;
+      preview.innerHTML = `<img src="${reader.result}" alt="ตัวอย่างสลิปที่แนบ" />`;
+    };
+    reader.readAsDataURL(file);
+  });
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
-    const input = form.querySelector('[name="slip-url"]');
-    const value = input.value.trim();
+    const amount = Number(new FormData(form).get('amount') || 0);
+    const slip = preview?.querySelector('img')?.src || '';
 
-    if (!value) {
-      showAlert({ title: 'เติมเงินไม่สำเร็จ', message: 'กรุณาใส่ลิงก์อั่งเปาก่อนเติมเงิน', type: 'error' });
-      input.focus();
+    if (amount <= 0 || !slip) {
+      showAlert({ title: 'ส่งสลิปไม่สำเร็จ', message: 'กรุณาระบุยอดเงินและแนบสลิปก่อนส่งตรวจสอบ', type: 'error' });
       return;
     }
 
-    showAlert({ title: 'ส่งข้อมูลเติมเงินแล้ว', message: 'ระบบกำลังตรวจสอบลิงก์อั่งเปาของคุณ', type: 'success' });
+    const topups = readList(TOPUP_KEY);
+    topups.unshift({ id: makeId(), username: user.username, displayName: user.displayName || user.username, amount, slip, status: 'pending', createdAt: new Date().toISOString() });
+    writeList(TOPUP_KEY, topups);
+    showAlert({ title: 'ส่งสลิปแล้ว', message: 'รอแอดมินตรวจสอบและยืนยันยอดเติมเงิน', type: 'success' });
     form.reset();
+    if (preview) { preview.hidden = true; preview.innerHTML = ''; }
   });
 }
-
 
 function initProfile() {
   if (document.body.dataset.page !== 'profile') return;
@@ -417,7 +542,7 @@ function initProfile() {
   document.querySelector('[data-user-role]').textContent = isAdmin(user) ? 'ADMIN' : 'USER';
   document.querySelector('[data-profile-orders]').textContent = readList(ORDERS_KEY).length;
   const form = document.querySelector('[data-profile-form]');
-  form?.addEventListener('submit', (event) => { event.preventDefault(); user.displayName = new FormData(form).get('displayName') || user.displayName; setUser(user); requireAuth(); showAlert({ title: 'บันทึกโปรไฟล์แล้ว', type: 'success' }); });
+  form?.addEventListener('submit', (event) => { event.preventDefault(); user.displayName = new FormData(form).get('displayName') || user.displayName; updateCurrentUser(user); requireAuth(); showAlert({ title: 'บันทึกโปรไฟล์แล้ว', type: 'success' }); });
 }
 
 function initDonate() {

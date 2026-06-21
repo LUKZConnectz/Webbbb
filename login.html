@@ -43,7 +43,24 @@
           <span>เข้าสู่ระบบ</span>
         </button>
       </form>
+      <button class="register-open" type="button" data-open-register>สมัครสมาชิก</button>
     </section>
+
+    <div class="auth-modal" data-register-modal aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="register-title">
+      <div class="auth-modal-card">
+        <button class="modal-close" type="button" aria-label="ปิดหน้าต่างสมัครสมาชิก" data-close-register><i data-lucide="x" aria-hidden="true"></i></button>
+        <span class="login-kicker">Create Account</span>
+        <h2 id="register-title">สมัครสมาชิก</h2>
+        <p>สร้างบัญชีใหม่เพื่อเติมเงินและสั่งซื้อสินค้า</p>
+        <form class="login-form" data-register-form action="#" method="post">
+          <p class="login-error" data-register-error hidden></p>
+          <div class="form-field"><label for="register-display">ชื่อแสดงผล</label><div class="input-wrap"><i data-lucide="badge-user" aria-hidden="true"></i><input id="register-display" name="displayName" type="text" placeholder="ชื่อที่ต้องการแสดง" autocomplete="name" /></div></div>
+          <div class="form-field"><label for="register-username">ชื่อผู้ใช้</label><div class="input-wrap"><i data-lucide="user-plus" aria-hidden="true"></i><input id="register-username" name="username" type="text" placeholder="ตั้งชื่อผู้ใช้" autocomplete="username" /></div></div>
+          <div class="form-field"><label for="register-password">รหัสผ่าน</label><div class="input-wrap"><i data-lucide="key-round" aria-hidden="true"></i><input id="register-password" name="password" type="password" placeholder="ตั้งรหัสผ่าน" autocomplete="new-password" /></div></div>
+          <button class="pill login-submit" type="submit"><i data-lucide="user-check" aria-hidden="true"></i><span>ยืนยันสมัครสมาชิก</span></button>
+        </form>
+      </div>
+    </div>
   </main>
   <script src="script.js"></script>
 </body>
