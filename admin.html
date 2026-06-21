@@ -7,7 +7,20 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Noto+Sans+Thai:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: ['class', '.theme-dark'],
+      theme: {
+        extend: {
+          fontFamily: { sans: ["Inter", "Noto Sans Thai", "system-ui", "sans-serif"] },
+          colors: { brand: { red: '#df0617', dark: '#17171d' } },
+        },
+      },
+    };
+  </script>
+  <script src="tailwind-bridge.js" defer></script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
 </head>
 <body data-protected="true" data-page="admin" class="admin-page">
