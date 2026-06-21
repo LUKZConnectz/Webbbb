@@ -25,8 +25,54 @@ function setUser(user) {
   localStorage.setItem(AUTH_KEY, JSON.stringify(user));
 }
 
+const ICON_FALLBACKS = {
+  'badge-dollar-sign': '฿',
+  'badge-plus': '+',
+  'badge-user': '👤',
+  'circle-alert': '!',
+  'circle-check': '✓',
+  'credit-card': '💳',
+  'heart': '♥',
+  'heart-handshake': '♥',
+  'info': 'i',
+  'key-round': '🔑',
+  'message-square-text': '💬',
+  'package-check': '📦',
+  'package-open': '📦',
+  'piggy-bank': '฿',
+  'receipt-text': '🧾',
+  'save': '💾',
+  'settings': '⚙',
+  'shield-user': '🛡',
+  'shopping-bag': '🛍',
+  'shopping-basket': '🛒',
+  'store': '🏪',
+  'sun-moon': '◐',
+  'trophy': '🏆',
+  'triangle-alert': '!',
+  'user-cog': '👤',
+  'user-plus': '+',
+  'user-round': '👤',
+  'wallet': '👛',
+  'x': '×',
+};
+
+function renderFallbackIcons(root = document) {
+  root.querySelectorAll('[data-lucide]').forEach((icon) => {
+    if (icon.querySelector('svg')) return;
+    const name = icon.getAttribute('data-lucide');
+    icon.textContent = ICON_FALLBACKS[name] || '•';
+    icon.classList.add('icon-fallback');
+    icon.setAttribute('aria-hidden', 'true');
+  });
+}
+
 function refreshIcons(root = document) {
-  if (window.lucide) window.lucide.createIcons({ attrs: { 'aria-hidden': 'true' }, root });
+  if (window.lucide) {
+    window.lucide.createIcons({ attrs: { 'aria-hidden': 'true' }, root });
+    return;
+  }
+  renderFallbackIcons(root);
 }
 
 function ensureAlertRegion() {

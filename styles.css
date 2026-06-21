@@ -67,6 +67,15 @@ body {
 .icon-btn { width: 36px; padding: 0; background: #fff; color: #0c0c0f; }
 .icon-link { text-decoration: none; }
 [data-lucide] { width: 18px; height: 18px; stroke-width: 2.6; flex: 0 0 auto; }
+.icon-fallback {
+  display: inline-grid;
+  place-items: center;
+  font-family: "Inter", "Noto Sans Thai", system-ui, sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 1;
+}
 .avatar [data-lucide] { width: 13px; height: 13px; }
 .pill [data-lucide] { width: 17px; height: 17px; }
 
