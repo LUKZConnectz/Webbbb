@@ -367,7 +367,10 @@ function initAdmin() {
     if (productsMetric) productsMetric.textContent = products.length;
     const topups = readList(TOPUP_KEY);
     if (topupMetric) topupMetric.textContent = topups.filter((item) => item.status === 'pending').length;
-    if (topupList) topupList.innerHTML = topups.length ? topups.map((item) => `<article class="admin-order topup-review" data-topup-id="${escapeHTML(item.id)}"><div><h3>${escapeHTML(item.displayName || item.username)} · ${formatMoney(item.amount)}</h3><p>${formatThaiDate(item.createdAt)} · ${item.status === 'approved' ? 'อนุมัติแล้ว' : item.status === 'rejected' ? 'ปฏิเสธแล้ว' : 'รอตรวจสอบ'}</p><img src="${item.slip}" alt="สลิปเติมเงิน ${escapeHTML(item.id)}" /></div><div class="topup-review-actions"><button class="pill" type="button" data-approve-topup>ยืนยัน</button><button class="pill ghost-pill" type="button" data-reject-topup>ปฏิเสธ</button></div></article>`).join('') : '<p class="empty-state">ยังไม่มีสลิปเติมเงินให้ตรวจสอบ</p>';
+    if (topupList) topupList.innerHTML = topups.length ? topups.map((item) => {
+      const proof = item.slip ? `<img src="${item.slip}" alt="สลิปเติมเงิน ${escapeHTML(item.id)}" />` : `<p class="order-detail">ลิงก์ซองของขวัญ: ${escapeHTML(item.voucherLink || '-')}</p>`;
+      return `<article class="admin-order topup-review" data-topup-id="${escapeHTML(item.id)}"><div><h3>${escapeHTML(item.displayName || item.username)} · ${formatMoney(item.amount)}</h3><p>${formatThaiDate(item.createdAt)} · ${item.status === 'approved' ? 'อนุมัติแล้ว' : item.status === 'rejected' ? 'ปฏิเสธแล้ว' : 'รอตรวจสอบ'}</p>${proof}</div><div class="topup-review-actions"><button class="pill" type="button" data-approve-topup>ยืนยัน</button><button class="pill ghost-pill" type="button" data-reject-topup>ปฏิเสธ</button></div></article>`;
+    }).join('') : '<p class="empty-state">ยังไม่มีคำขอเติมเงินให้ตรวจสอบ</p>';
     if (productsList) productsList.innerHTML = products.map((product) => `<article class="admin-order" data-product-id="${escapeHTML(product.id)}"><div><h3>${escapeHTML(product.name)}</h3><p>${formatMoney(product.price)} · คงเหลือ ${Number(product.stock || 0)} ชิ้น</p></div><button class="pill" type="button" data-delete-product>ลบ</button></article>`).join('');
     list.innerHTML = orders.length ? orders.map((order) => `
       <article class="admin-order">
@@ -494,53 +497,39 @@ function initTopup() {
   const form = document.querySelector('[data-topup-form]');
   const manualForm = document.querySelector('[data-manual-topup-form]');
   const methodButtons = document.querySelectorAll('[data-topup-method]');
-  const slipInput = document.querySelector('[name="slip-file"]');
-  const preview = document.querySelector('[data-slip-preview]');
+  const balanceEl = document.querySelector('[data-user-balance]');
+  const updateBalanceText = () => {
+    const current = getUser() || user;
+    if (balanceEl) balanceEl.textContent = `${Number(current.balance || 0).toLocaleString('th-TH')} พอยท์`;
+  };
+  updateBalanceText();
   if (!form) return;
 
-  const showMethod = (method) => {
-    document.querySelectorAll('[data-method-panel]').forEach((panel) => {
-      panel.hidden = panel.dataset.methodPanel !== method;
+  methodButtons.forEach((button) => button.addEventListener('click', () => {
+    methodButtons.forEach((item) => {
+      const active = item === button;
+      item.classList.toggle('is-active', active);
+      item.classList.toggle('ghost-pill', !active);
+      item.setAttribute('aria-pressed', active);
     });
-    methodButtons.forEach((button) => {
-      const active = button.dataset.topupMethod === method;
-      button.classList.toggle('is-active', active);
-      button.classList.toggle('ghost-pill', !active);
-      button.setAttribute('aria-pressed', active);
-    });
-    refreshIcons(document.querySelector('[data-method-panel]:not([hidden])') || document);
-  };
-
-  methodButtons.forEach((button) => button.addEventListener('click', () => showMethod(button.dataset.topupMethod)));
-  showMethod('qr');
-
-  slipInput?.addEventListener('change', () => {
-    const file = slipInput.files?.[0];
-    if (!file || !preview) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      preview.hidden = false;
-      preview.innerHTML = `<img src="${reader.result}" alt="ตัวอย่างสลิปที่แนบ" />`;
-    };
-    reader.readAsDataURL(file);
-  });
+  }));
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
-    const amount = Number(new FormData(form).get('amount') || 0);
-    const slip = preview?.querySelector('img')?.src || '';
+    const formData = new FormData(form);
+    const amount = Number(formData.get('amount') || 0);
+    const voucherLink = String(formData.get('voucher-link') || '').trim();
 
-    if (amount <= 0 || !slip) {
-      showAlert({ title: 'ส่งสลิปไม่สำเร็จ', message: 'กรุณาระบุยอดเงินและแนบสลิปก่อนส่งตรวจสอบ', type: 'error' });
+    if (amount <= 0 || !voucherLink) {
+      showAlert({ title: 'ส่งคำขอไม่สำเร็จ', message: 'กรุณาระบุลิงก์ซองของขวัญและจำนวนเงินก่อนยืนยัน', type: 'error' });
       return;
     }
 
     const topups = readList(TOPUP_KEY);
-    topups.unshift({ id: makeId(), username: user.username, displayName: user.displayName || user.username, amount, slip, status: 'pending', createdAt: new Date().toISOString() });
+    topups.unshift({ id: makeId(), username: user.username, displayName: user.displayName || user.username, amount, voucherLink, slip: '', status: 'pending', createdAt: new Date().toISOString() });
     writeList(TOPUP_KEY, topups);
-    showAlert({ title: 'ส่งสลิปแล้ว', message: 'รอแอดมินตรวจสอบและยืนยันยอดเติมเงิน', type: 'success' });
+    showAlert({ title: 'ส่งคำขอเติมเงินแล้ว', message: 'รอแอดมินตรวจสอบซองของขวัญและยืนยันยอดเติมเงิน', type: 'success' });
     form.reset();
-    if (preview) { preview.hidden = true; preview.innerHTML = ''; }
   });
 
   manualForm?.addEventListener('submit', (event) => {
@@ -552,6 +541,7 @@ function initTopup() {
     }
     const updated = updateCurrentUser({ balance: Number(getUser().balance || 0) + amount });
     manualForm.reset();
+    updateBalanceText();
     showAlert({ title: 'เติมเงินสำเร็จ', message: `ยอดคงเหลือปัจจุบัน ${formatMoney(updated.balance)}`, type: 'success' });
   });
 }
