@@ -7,6 +7,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Noto+Sans+Thai:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ["Inter", "Noto Sans Thai", "system-ui", "sans-serif"] },
+        },
+      },
+    };
+  </script>
   <link rel="stylesheet" href="styles.css" />
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
 </head>
@@ -29,36 +39,52 @@
   </header>
 
   <main class="page-shell">
-    <section class="reviews-showcase" aria-label="รีวิวจากผู้ใช้งาน">
-      <div class="reviews-panel">
-        <h1>การันตีผู้ใช้งานมากกว่า <span>2500 คน +</span></h1>
-        <div class="review-grid">
-          <article class="review-card">
-            <img src="assets/IMG_0010.jpeg" alt="รูปโปรไฟล์ผู้รีวิว @265starisp" />
-            <div>
-              <strong>@265starisp</strong>
-              <p>โหลดลื่น เล่นสนุกไม่มีโปรแกรมแทรก ถูกกว่าในสตรีม ใช้งานง่ายมาก แอดมินตอบไวสุดๆ</p>
+    <section class="reviews-showcase tw-home-scroll relative overflow-hidden rounded-[30px] bg-gradient-to-br from-black via-zinc-950 to-red-950 px-5 py-8 shadow-[inset_0_0_0_1px_rgba(255,255,255,.08),0_18px_50px_rgba(0,0,0,.18)] sm:px-10 lg:px-16" aria-label="รีวิวจากผู้ใช้งานแบบเลื่อนได้">
+      <div class="pointer-events-none absolute inset-x-4 top-4 text-center text-5xl font-black leading-none tracking-[-0.08em] text-white/5 sm:text-7xl lg:text-9xl">WELCOME TO</div>
+      <div class="pointer-events-none absolute left-0 top-0 h-52 w-52 rounded-full bg-red-600/60 blur-3xl"></div>
+      <div class="pointer-events-none absolute bottom-0 right-0 h-56 w-56 rounded-full bg-red-600/50 blur-3xl"></div>
+
+      <div class="relative z-[1] mx-auto flex max-w-5xl flex-col gap-6">
+        <div class="flex flex-col items-center justify-between gap-3 text-center sm:flex-row sm:text-left">
+          <h1 class="m-0 text-2xl font-black leading-tight text-white sm:text-3xl lg:text-4xl">การันตีผู้ใช้งานมากกว่า <span class="text-red-500">2500 คน +</span></h1>
+          <span class="rounded-full border border-red-400/60 bg-white/10 px-4 py-2 text-sm font-extrabold text-white shadow-[0_0_24px_rgba(255,0,0,.35)]">เลื่อนดูรีวิว →</span>
+        </div>
+
+        <div class="review-scroll flex snap-x gap-5 overflow-x-auto pb-4" tabindex="0" aria-label="เลื่อนแนวนอนเพื่อดูรีวิวทั้งหมด">
+          <article class="review-card-tailwind min-w-[285px] snap-start rounded-2xl border-2 border-red-500 bg-gradient-to-br from-zinc-950/95 to-red-950/90 p-4 text-white shadow-[0_0_9px_#ff101b,0_0_22px_rgba(255,16,27,.72),inset_0_0_13px_rgba(255,0,0,.27)] sm:min-w-[380px]">
+            <div class="grid grid-cols-[56px_1fr] items-center gap-3">
+              <img class="h-14 w-14 rounded-lg object-cover contrast-125 saturate-90" src="assets/IMG_0010.jpeg" alt="รูปโปรไฟล์ผู้รีวิว @265starisp" />
+              <div>
+                <strong class="mb-1 block text-sm font-black">@265starisp</strong>
+                <p class="m-0 text-sm font-extrabold leading-snug">โหลดลื่น เล่นสนุกไม่มีโปรแกรมแทรก ถูกกว่าในสตรีม ใช้งานง่ายมาก แอดมินตอบไวสุดๆ</p>
+              </div>
             </div>
           </article>
-          <article class="review-card">
-            <img src="assets/IMG_0010.jpeg" alt="รูปโปรไฟล์ผู้รีวิว @wrs-582x" />
-            <div>
-              <strong>@wrs-582x</strong>
-              <p>ใช้โปรแกรมเล่นง่าย ดาวน์โหลดไว แอดมินแนะนำดี ซื้อแล้วใช้งานได้จริง</p>
+          <article class="review-card-tailwind min-w-[285px] snap-start rounded-2xl border-2 border-red-500 bg-gradient-to-br from-zinc-950/95 to-red-950/90 p-4 text-white shadow-[0_0_9px_#ff101b,0_0_22px_rgba(255,16,27,.72),inset_0_0_13px_rgba(255,0,0,.27)] sm:min-w-[380px]">
+            <div class="grid grid-cols-[56px_1fr] items-center gap-3">
+              <img class="h-14 w-14 rounded-lg object-cover contrast-125 saturate-90" src="assets/IMG_0010.jpeg" alt="รูปโปรไฟล์ผู้รีวิว @wrs-582x" />
+              <div>
+                <strong class="mb-1 block text-sm font-black">@wrs-582x</strong>
+                <p class="m-0 text-sm font-extrabold leading-snug">ใช้โปรแกรมเล่นง่าย ดาวน์โหลดไว แอดมินแนะนำดี ซื้อแล้วใช้งานได้จริง</p>
+              </div>
             </div>
           </article>
-          <article class="review-card">
-            <img src="assets/IMG_0010.jpeg" alt="รูปโปรไฟล์ผู้รีวิว @rachacocoo" />
-            <div>
-              <strong>@rachacocoo</strong>
-              <p>ใช้งานได้จริง ใช้ง่ายจัด โปรโมชันคุ้ม ผ่านประเทศแบบเนียนมาก ไว้จะอุดหนุนอีก</p>
+          <article class="review-card-tailwind min-w-[285px] snap-start rounded-2xl border-2 border-red-500 bg-gradient-to-br from-zinc-950/95 to-red-950/90 p-4 text-white shadow-[0_0_9px_#ff101b,0_0_22px_rgba(255,16,27,.72),inset_0_0_13px_rgba(255,0,0,.27)] sm:min-w-[380px]">
+            <div class="grid grid-cols-[56px_1fr] items-center gap-3">
+              <img class="h-14 w-14 rounded-lg object-cover contrast-125 saturate-90" src="assets/IMG_0010.jpeg" alt="รูปโปรไฟล์ผู้รีวิว @rachacocoo" />
+              <div>
+                <strong class="mb-1 block text-sm font-black">@rachacocoo</strong>
+                <p class="m-0 text-sm font-extrabold leading-snug">ใช้งานได้จริง ใช้ง่ายจัด โปรโมชันคุ้ม ผ่านประเทศแบบเนียนมาก ไว้จะอุดหนุนอีก</p>
+              </div>
             </div>
           </article>
-          <article class="review-card">
-            <img src="assets/IMG_0010.jpeg" alt="รูปโปรไฟล์ผู้รีวิว @tuahedongzeebrewinterfoil_" />
-            <div>
-              <strong>@tuahedongzeebrewinterfoil_</strong>
-              <p>ต้อง +1 รีวิวครับ ใช้แล้วโอเคมาก ราคาดี จัดส่งเร็ว โปรดีหลายร้านแต่ที่นี่ถูกใจสุด</p>
+          <article class="review-card-tailwind min-w-[285px] snap-start rounded-2xl border-2 border-red-500 bg-gradient-to-br from-zinc-950/95 to-red-950/90 p-4 text-white shadow-[0_0_9px_#ff101b,0_0_22px_rgba(255,16,27,.72),inset_0_0_13px_rgba(255,0,0,.27)] sm:min-w-[380px]">
+            <div class="grid grid-cols-[56px_1fr] items-center gap-3">
+              <img class="h-14 w-14 rounded-lg object-cover contrast-125 saturate-90" src="assets/IMG_0010.jpeg" alt="รูปโปรไฟล์ผู้รีวิว @tuahedongzeebrewinterfoil_" />
+              <div>
+                <strong class="mb-1 block text-sm font-black">@tuahedongzeebrewinterfoil_</strong>
+                <p class="m-0 text-sm font-extrabold leading-snug">ต้อง +1 รีวิวครับ ใช้แล้วโอเคมาก ราคาดี จัดส่งเร็ว โปรดีหลายร้านแต่ที่นี่ถูกใจสุด</p>
+              </div>
             </div>
           </article>
         </div>
