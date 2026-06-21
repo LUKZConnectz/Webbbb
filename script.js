@@ -7,7 +7,15 @@ const DONATE_KEY = 'freal_boxser_donations';
 const USERS_KEY = 'freal_boxser_users';
 const TOPUP_KEY = 'freal_boxser_topups';
 const THEME_KEY = 'freal_boxser_theme';
-const PRODUCT = { id: 'night-vision', name: 'Night Vision Goggles', description: 'อุปกรณ์มองกลางคืน เหมาะสำหรับภารกิจลับหรือดูแลเวลากลางคืน', price: 3500, stock: 4, featured: true };
+// แก้ไขประกาศหน้าแรกได้ที่นี่: เพิ่ม/ลบข้อความในรายการนี้ได้ทันที
+const ANNOUNCEMENTS = [
+  'ยินดีต้อนรับสู่ Freal Boxser',
+  'เพิ่มข้อความประกาศได้ง่ายใน script.js',
+  'เติมเงินและสั่งซื้อได้ตลอด 24 ชั่วโมง',
+];
+
+// แก้ไขสินค้าเริ่มต้นได้ที่นี่: เว้น image เป็นค่าว่างเพื่อให้เป็นกล่องเปล่าสำหรับใส่รูปเองภายหลัง
+const PRODUCT = { id: 'night-vision', name: 'Night Vision Goggles', description: 'อุปกรณ์มองกลางคืน เหมาะสำหรับภารกิจลับหรือดูแลเวลากลางคืน', price: 3500, stock: 4, featured: true, image: '' };
 
 function getUser() {
   try { return JSON.parse(localStorage.getItem(AUTH_KEY)); } catch { return null; }
@@ -317,10 +325,24 @@ function initStore() {
 function renderStoreProducts() {
   const grid = document.querySelector('.product-grid');
   if (!grid) return;
-  grid.innerHTML = getProducts().map((product, index) => `<article class="product-card ${product.featured || index === 0 ? 'featured' : ''}"><span class="badge ${product.featured || index === 0 ? 'red' : 'dark'}">${product.featured || index === 0 ? 'สินค้าแนะนำ' : 'สินค้ายอดนิยม'}</span><div class="product-image"></div><div class="product-body"><h2>${escapeHTML(product.name)}</h2><p>${escapeHTML(product.description)}</p><strong class="price">${formatMoney(product.price)}</strong></div></article>`).join('');
+  grid.innerHTML = getProducts().map((product, index) => {
+    const image = String(product.image || '').trim();
+    const imageStyle = image ? ` style="background-image: url('${escapeHTML(image)}')"` : '';
+    return `<article class="product-card ${product.featured || index === 0 ? 'featured' : ''}"><span class="badge ${product.featured || index === 0 ? 'red' : 'dark'}">${product.featured || index === 0 ? 'สินค้าแนะนำ' : 'สินค้ายอดนิยม'}</span><div class="product-image${image ? ' has-image' : ''}"${imageStyle} aria-label="พื้นที่รูปสินค้า ใส่รูปเองได้"></div><div class="product-body"><h2>${escapeHTML(product.name)}</h2><p>${escapeHTML(product.description)}</p><strong class="price">${formatMoney(product.price)}</strong></div></article>`;
+  }).join('');
+}
+
+function renderAnnouncements() {
+  const track = document.querySelector('[data-announcement-track]');
+  if (!track) return;
+  const items = ANNOUNCEMENTS.length ? ANNOUNCEMENTS : ['เพิ่มประกาศร้านค้าได้ที่ script.js'];
+  const marqueeItems = [...items, ...items];
+  track.innerHTML = marqueeItems.map((message) => `<span><i data-lucide="bell" aria-hidden="true"></i> ${escapeHTML(message)}</span>`).join('');
+  refreshIcons(track);
 }
 
 function initHeroSlider() {
+  renderAnnouncements();
   const slider = document.querySelector('[data-hero-slider]');
   if (!slider) return;
   const slides = Array.from(slider.querySelectorAll('[data-slide]'));
@@ -385,7 +407,7 @@ function initAdmin() {
     event.preventDefault();
     const formData = new FormData(productForm);
     const products = getProducts();
-    products.unshift({ id: makeId(), name: String(formData.get('product-name') || 'สินค้าใหม่'), description: String(formData.get('product-description') || 'สินค้าในร้าน Freal Boxser'), price: Number(formData.get('product-price') || 0), stock: Number(formData.get('product-stock') || 1), featured: false });
+    products.unshift({ id: makeId(), name: String(formData.get('product-name') || 'สินค้าใหม่'), description: String(formData.get('product-description') || 'สินค้าในร้าน Freal Boxser'), price: Number(formData.get('product-price') || 0), stock: Number(formData.get('product-stock') || 1), featured: false, image: '' });
     saveProducts(products);
     productForm.reset();
     render();

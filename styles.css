@@ -773,38 +773,38 @@ body[data-page="home"] .slider-arrow { z-index: 4; background: rgba(255,255,255,
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: 22px;
-  min-height: 112px;
-  margin: 0 auto 24px;
-  padding: 18px 18px;
+  gap: 14px;
+  min-height: 74px;
+  margin: 0 auto 20px;
+  padding: 12px;
   overflow: hidden;
   border: 1px solid rgba(255,255,255,.12);
-  border-radius: 24px;
+  border-radius: 18px;
   background: rgba(7,7,10,.95);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 18px 45px rgba(0,0,0,.16);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 14px 34px rgba(0,0,0,.13);
 }
 .announcement-title {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  min-height: 78px;
-  padding: 0 28px;
-  border-radius: 18px;
+  gap: 7px;
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: 14px;
   background: #fff;
   color: #07070a;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 900;
   white-space: nowrap;
 }
-.announcement-title [data-lucide] { width: 28px; height: 28px; color: #07070a; }
+.announcement-title [data-lucide] { width: 22px; height: 22px; color: #07070a; }
 .announcement-viewport { min-width: 0; overflow: hidden; }
 .announcement-track {
   display: flex;
   width: max-content;
   align-items: center;
-  gap: 30px;
+  gap: 24px;
   color: rgba(255,255,255,.72);
-  font-size: 22px;
+  font-size: 17px;
   font-weight: 900;
   animation: announcement-marquee 18s linear infinite;
 }
@@ -815,15 +815,33 @@ body[data-page="home"] .slider-arrow { z-index: 4; background: rgba(255,255,255,
 @media (max-width: 760px) {
   body[data-page="home"] .hero-slide { grid-template-columns: 1fr; align-content: center; gap: 14px; }
   body[data-page="home"] .hero-mascot img { width: 120px; border-radius: 24px; }
-  .announcement-bar { grid-template-columns: 1fr; gap: 14px; min-height: auto; }
-  .announcement-title { justify-content: center; min-height: 56px; }
+  .announcement-bar { grid-template-columns: 1fr; gap: 10px; min-height: auto; padding: 10px; border-radius: 16px; }
+  .announcement-title { justify-content: center; min-height: 44px; font-size: 16px; }
 }
 
 /* Mobile-friendly box-only products and TrueMoney-style top-up page */
 .topup-nav { border-color: rgba(223,6,23,.45); }
-.product-image { display: none; }
-.product-card { min-height: 150px; display: flex; align-items: stretch; }
-.product-body { display: grid; align-content: center; width: 100%; min-height: 150px; padding: 22px 18px; }
+.product-image {
+  display: grid;
+  place-items: center;
+  min-height: 118px;
+  margin: 12px 12px 0;
+  border: 1.5px dashed color-mix(in srgb, var(--border), #9ca3af 40%);
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--surface-2), #fff);
+  filter: none;
+  background-size: cover;
+  background-position: center;
+}
+.product-image:not(.has-image)::after {
+  content: "ใส่รูปเอง";
+  color: #9ca3af;
+  font-size: 13px;
+  font-weight: 900;
+}
+.product-image.has-image::after { content: none; }
+.product-card { min-height: 0; display: flex; flex-direction: column; align-items: stretch; }
+.product-body { display: grid; align-content: center; width: 100%; min-height: 118px; padding: 18px 16px 20px; }
 .product-body h2 { white-space: normal; }
 .product-body p { white-space: normal; }
 .topup-page-shell { width: min(920px, calc(100% - 32px)); margin: 34px auto 60px; }
@@ -872,8 +890,9 @@ body.theme-dark .topup-guide-card, body.theme-dark .balance-box { background: va
   .logout-pill::after { content: "ออก"; font-size: 13px; }
   .page-shell, body[data-page="home"] .page-shell, .topup-page-shell { width: min(100% - 24px, 1080px); margin-top: 18px; }
   .product-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
-  .product-card, .product-body { min-height: 128px; }
-  .product-body { padding: 18px 12px; }
+  .product-card { border-radius: 14px; }
+  .product-image { min-height: 96px; margin: 10px 10px 0; border-radius: 12px; }
+  .product-body { min-height: 112px; padding: 14px 12px 16px; }
   .product-body h2 { font-size: 15px; }
   .price { font-size: 17px; }
   .topup-heading { display: grid; align-items: start; }
@@ -884,4 +903,6 @@ body.theme-dark .topup-guide-card, body.theme-dark .balance-box { background: va
 @media (max-width: 390px) {
   .toolbar { grid-template-columns: repeat(4, minmax(48px, 1fr)); }
   .product-grid { grid-template-columns: 1fr; }
+  .announcement-track { font-size: 15px; }
+  .product-image { min-height: 112px; }
 }
