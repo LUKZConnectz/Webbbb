@@ -818,3 +818,70 @@ body[data-page="home"] .slider-arrow { z-index: 4; background: rgba(255,255,255,
   .announcement-bar { grid-template-columns: 1fr; gap: 14px; min-height: auto; }
   .announcement-title { justify-content: center; min-height: 56px; }
 }
+
+/* Mobile-friendly box-only products and TrueMoney-style top-up page */
+.topup-nav { border-color: rgba(223,6,23,.45); }
+.product-image { display: none; }
+.product-card { min-height: 150px; display: flex; align-items: stretch; }
+.product-body { display: grid; align-content: center; width: 100%; min-height: 150px; padding: 22px 18px; }
+.product-body h2 { white-space: normal; }
+.product-body p { white-space: normal; }
+.topup-page-shell { width: min(920px, calc(100% - 32px)); margin: 34px auto 60px; }
+.topup-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+.topup-heading h1 { margin: 0 0 4px; font-size: clamp(28px, 4vw, 38px); line-height: 1.1; font-weight: 900; letter-spacing: -.8px; }
+.topup-heading p { margin: 0; color: var(--muted); font-size: 15px; }
+.topup-history { gap: 8px; background: var(--surface); white-space: nowrap; }
+.topup-layout { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(260px, .9fr); gap: 22px; align-items: start; }
+.topup-main-card, .topup-side-card, .topup-voucher-card, .topup-guide-card { border: 1px solid var(--border); border-radius: 18px; background: var(--surface); box-shadow: var(--shadow); }
+.topup-main-card { display: grid; gap: 18px; padding: 20px; }
+.topup-voucher-card { display: grid; gap: 13px; padding: 18px; }
+.topup-card-title { display: flex; align-items: start; gap: 10px; }
+.topup-card-title > i, .topup-card-title [data-lucide] { color: #e5b92f; }
+.topup-card-title strong { display: block; font-size: 16px; font-weight: 900; }
+.topup-card-title span { display: block; margin-top: 2px; color: var(--muted); font-size: 13px; }
+.topup-voucher-card label { font-size: 13px; font-weight: 900; }
+.topup-input-wrap { height: 44px; border-radius: 10px; }
+.topup-help { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.topup-wide { width: 100%; background: linear-gradient(135deg, #ffe6a5, #ffd36b); color: #8a5a00; border: 0; }
+.topup-guide-card { padding: 16px 18px; background: linear-gradient(135deg, #fffdf4, #fff); }
+.topup-guide-card h2 { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; color: #c08a00; font-size: 15px; font-weight: 900; }
+.topup-guide-card ol { margin: 0; padding-left: 22px; color: #6f6250; font-size: 13px; line-height: 1.75; }
+.coupon-card { background: linear-gradient(135deg, var(--surface), var(--surface-2)); }
+.topup-side-card { display: grid; gap: 16px; padding: 18px; }
+.topup-side-card h2 { margin: 0; font-size: 18px; font-weight: 900; }
+.balance-box { position: relative; min-height: 94px; padding: 18px; overflow: hidden; border: 1px solid var(--border); border-radius: 14px; background: linear-gradient(135deg, #fff, #fff9e8); }
+.balance-box span { display: block; color: var(--muted); font-size: 13px; font-weight: 800; }
+.balance-box strong { display: block; margin-top: 8px; color: #b68000; font-size: 20px; font-weight: 900; }
+.balance-box [data-lucide] { position: absolute; right: 18px; top: 30px; width: 34px; height: 34px; color: #f0c447; }
+.warning-box h3 { display: flex; align-items: center; gap: 7px; margin: 0 0 8px; color: #b68000; font-size: 14px; font-weight: 900; }
+.warning-box ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; line-height: 1.7; }
+body.theme-dark .topup-main-card, body.theme-dark .topup-side-card, body.theme-dark .topup-voucher-card { background: var(--surface); border-color: var(--border); }
+body.theme-dark .topup-guide-card, body.theme-dark .balance-box { background: var(--surface-2); }
+@media (max-width: 760px) {
+  .site-header { min-height: 0; }
+  .header-inner { width: min(100% - 24px, 1180px); gap: 14px; }
+  .logo { width: 78px; height: 54px; }
+  .logo-main { font-size: 23px; }
+  .logo-sub { font-size: 11px; }
+  .toolbar { display: grid; grid-template-columns: repeat(5, minmax(48px, 1fr)); width: 100%; gap: 8px; }
+  .nav-link, .icon-btn, .pill { min-height: 46px; padding: 0 10px; }
+  .nav-link { justify-content: center; }
+  .nav-link span, .logout-pill { font-size: 0; }
+  .nav-link [data-lucide], .icon-btn [data-lucide] { width: 21px; height: 21px; }
+  .user-pill { grid-column: span 2; }
+  .logout-pill::after { content: "ออก"; font-size: 13px; }
+  .page-shell, body[data-page="home"] .page-shell, .topup-page-shell { width: min(100% - 24px, 1080px); margin-top: 18px; }
+  .product-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .product-card, .product-body { min-height: 128px; }
+  .product-body { padding: 18px 12px; }
+  .product-body h2 { font-size: 15px; }
+  .price { font-size: 17px; }
+  .topup-heading { display: grid; align-items: start; }
+  .topup-layout { grid-template-columns: 1fr; gap: 14px; }
+  .topup-main-card, .topup-side-card, .topup-voucher-card, .topup-guide-card { border-radius: 14px; }
+  .topup-main-card { padding: 14px; }
+}
+@media (max-width: 390px) {
+  .toolbar { grid-template-columns: repeat(4, minmax(48px, 1fr)); }
+  .product-grid { grid-template-columns: 1fr; }
+}
