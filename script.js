@@ -492,17 +492,27 @@ function initTopup() {
   const user = requireAuth();
   if (!user) return;
   const form = document.querySelector('[data-topup-form]');
-  const qrButton = document.querySelector('[data-show-qr]');
+  const manualForm = document.querySelector('[data-manual-topup-form]');
+  const methodButtons = document.querySelectorAll('[data-topup-method]');
   const slipInput = document.querySelector('[name="slip-file"]');
   const preview = document.querySelector('[data-slip-preview]');
   if (!form) return;
 
-  qrButton?.addEventListener('click', () => {
-    form.hidden = false;
-    qrButton.hidden = true;
-    refreshIcons(form);
-    showAlert({ title: 'แสดง QR Code แล้ว', message: 'สแกนโอนเงินแล้วแนบสลิปเพื่อให้แอดมินตรวจสอบ', type: 'info' });
-  });
+  const showMethod = (method) => {
+    document.querySelectorAll('[data-method-panel]').forEach((panel) => {
+      panel.hidden = panel.dataset.methodPanel !== method;
+    });
+    methodButtons.forEach((button) => {
+      const active = button.dataset.topupMethod === method;
+      button.classList.toggle('is-active', active);
+      button.classList.toggle('ghost-pill', !active);
+      button.setAttribute('aria-pressed', active);
+    });
+    refreshIcons(document.querySelector('[data-method-panel]:not([hidden])') || document);
+  };
+
+  methodButtons.forEach((button) => button.addEventListener('click', () => showMethod(button.dataset.topupMethod)));
+  showMethod('qr');
 
   slipInput?.addEventListener('change', () => {
     const file = slipInput.files?.[0];
@@ -531,6 +541,18 @@ function initTopup() {
     showAlert({ title: 'ส่งสลิปแล้ว', message: 'รอแอดมินตรวจสอบและยืนยันยอดเติมเงิน', type: 'success' });
     form.reset();
     if (preview) { preview.hidden = true; preview.innerHTML = ''; }
+  });
+
+  manualForm?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const amount = Number(new FormData(manualForm).get('amount') || 0);
+    if (amount <= 0) {
+      showAlert({ title: 'เติมเงินไม่สำเร็จ', message: 'กรุณาระบุยอดเงินที่ต้องการเติม', type: 'error' });
+      return;
+    }
+    const updated = updateCurrentUser({ balance: Number(getUser().balance || 0) + amount });
+    manualForm.reset();
+    showAlert({ title: 'เติมเงินสำเร็จ', message: `ยอดคงเหลือปัจจุบัน ${formatMoney(updated.balance)}`, type: 'success' });
   });
 }
 
